@@ -1,0 +1,70 @@
+package com.example.mylogin.security;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.SecurityBuilder;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.example.mylogin.authentication.JwtAuthenticationFilter;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig implements WebSecurityConfigurer {
+
+    @Autowired
+    private UserDetailsService userDetailsService;
+
+    public void configure(WebSecurity web) {
+        web.ignoring().antMatchers("/resources/**", "/static/**", "/css/**", "/js/**", "/images/**");
+    }
+
+    protected void configure(HttpSecurity http) throws Exception {
+        http.csrf().disable()
+            .authorizeRequests()
+            .antMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+            .antMatchers("/admin/**").hasRole("ADMIN")
+            .anyRequest().authenticated()
+            .and()
+            .formLogin();
+
+        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter();
+    }
+
+    public void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+    }
+
+	@Override
+	public void init(SecurityBuilder builder) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void configure(SecurityBuilder builder) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+}

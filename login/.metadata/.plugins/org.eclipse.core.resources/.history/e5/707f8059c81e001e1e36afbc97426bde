@@ -1,0 +1,52 @@
+package com.example.myadmissionportal.service;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.example.myadmissionportal.dao.RoleDao;
+import com.example.myadmissionportal.dao.StudentDao;
+import com.example.myadmissionportal.entity.Role;
+import com.example.myadmissionportal.entity.Student;
+
+@Service
+
+public class StudentService {
+	
+	@Autowired
+	private StudentDao studentDao;
+	
+	@Autowired
+	private RoleDao roleDao;
+	
+	public  Student loginNewStudent(Student student) {
+	return  studentDao.save(student);
+		
+	}
+	public void initRoleAndStudent() {
+		Role adminRole=new Role();
+		adminRole.setRolename("Admin");
+		adminRole.setRoledescrption("Admin role");
+		roleDao.save(adminRole);
+		
+		Role studentRole=new Role();
+		studentRole.setRolename("Student");
+		studentRole.setRoledescrption("Student role");
+		roleDao.save(studentRole);
+		
+		Student adminUser = new Student();
+		adminUser.setEmail("admin@example.com");
+		adminUser.setPassword("admin@123");
+		Set<Role> adminRoles = new HashSet<>();
+		adminRoles.add(adminRole);
+		studentDao.save(adminUser);
+		
+		
+		
+		
+		
+	}
+
+}

@@ -1,0 +1,12 @@
+package com.example.myadmissionportal.service;
+import org.springframework.stereotype.Service;
+
+import service.studentdetails.StudentDetailService;
+
+
+
+
+@Service
+public class JwtService implements StudentDetailService {
+
+}

@@ -1,0 +1,5 @@
+package com.example.mylogin.controller;
+
+public class AuthController {
+
+}

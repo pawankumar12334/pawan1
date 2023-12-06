@@ -1,0 +1,5 @@
+package com.example.mylogin.response;
+
+public class AuthResponse {
+
+}

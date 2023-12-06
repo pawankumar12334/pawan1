@@ -1,0 +1,25 @@
+package com.example.myadmissionportal.entity;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
+public class Role {
+	 
+	 @Id
+	 private String rolename;
+	 private String roledescrption;
+	public String getRolename() {
+		return rolename;
+	}
+	public void setRolename(String rolename) {
+		this.rolename = rolename;
+	}
+	public String getRoledescrption() {
+		return roledescrption;
+	}
+	public void setRoledescrption(String roledescrption) {
+		this.roledescrption = roledescrption;
+	}
+ 
+}

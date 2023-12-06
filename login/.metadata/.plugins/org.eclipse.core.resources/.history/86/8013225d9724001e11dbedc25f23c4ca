@@ -1,0 +1,140 @@
+package com.example.mylogin.authentication;
+
+
+
+import java.sql.Date;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.example.mylogin.entity.User;
+import com.example.mylogin.repository.UserRepository;
+import com.example.mylogin.service.UserService;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.security.Keys;
+
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+	
+	@Autowired
+    private UserService userService;
+
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String TOKEN_PREFIX = "Bearer ";
+    private static final String SECRET_KEY = "thisisainternlevelprojectThisIsAStrongAndSecureKey123!@#";
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, java.io.IOException {
+        try {
+            String token = extractToken(request);
+            if (token != null && validateToken(token)) {
+                Authentication authentication = getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        } catch (ExpiredJwtException e) {
+            logger.error("JWT token has expired");
+        } catch (MalformedJwtException e) {
+            logger.error("Invalid JWT token");
+        } catch (SignatureException e) {
+            logger.error("Invalid JWT signature");
+        } catch (Exception e) {
+            logger.error("Authentication failed: {}");
+        } finally {
+            filterChain.doFilter(request, response);
+        }
+    }
+
+    private String extractToken(HttpServletRequest request) {
+        String header = request.getHeader(AUTHORIZATION_HEADER);
+        if (header != null && header.startsWith(TOKEN_PREFIX)) {
+            return header.substring(TOKEN_PREFIX.length());
+        }
+        return null;
+    }
+
+    private boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes())).build().parseClaimsJws(token);
+            return true;
+        } catch (ExpiredJwtException e) {
+            throw e; // Rethrow the exception to handle in the calling method
+        } catch (MalformedJwtException e) {
+            throw e; // Rethrow the exception to handle in the calling method
+        } catch (SignatureException e) {
+            throw e; // Rethrow the exception to handle in the calling method
+        } catch (Exception e) {
+            logger.error("Invalid JWT token: {}");
+        }
+        return false;
+    }
+
+    private Authentication getAuthentication(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes())).build().parseClaimsJws(token).getBody();
+            String email = claims.get("email", String.class);
+
+            // You can extract additional user details from the token claims if needed
+
+            // Validate user's credentials based on email and password
+            if (validateCredentials(email,null)) {
+                return new UsernamePasswordAuthenticationToken(email, null, null);
+            } else {
+                logger.error("Invalid credentials for email: {}");
+            }
+        } catch (Exception e) {
+            logger.error("Failed to extract user details from JWT token: {}");
+        }
+        return null;
+    }
+    
+
+    private boolean validateCredentials(String email,String password) {
+        // Retrieve the user from your user service based on the email
+        User user = userService.findByEmail(email);
+
+        if (user != null) {
+            // Retrieve the stored password for the user
+            String storedPassword = user.getPassword();
+
+            // Compare the provided password with the stored password
+            // For example, using BCryptPasswordEncoder for password hashing
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            boolean passwordMatches = passwordEncoder.matches(password, storedPassword);
+
+            if (passwordMatches) {
+                // The credentials are valid
+                return true;
+            }
+        }
+
+        // The credentials are invalid
+        return false;
+    }
+
+   
+
+
+    public static String generateToken(String email) {
+        Claims claims = Jwts.claims().setIssuedAt(new Date(System.currentTimeMillis()));
+        claims.put("email", email);
+        return Jwts.builder()
+                .setClaims(claims)
+                .signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()), SignatureAlgorithm.HS256)
+                .compact();
+    }
+}

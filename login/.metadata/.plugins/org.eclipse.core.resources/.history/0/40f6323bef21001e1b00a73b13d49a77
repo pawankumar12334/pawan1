@@ -1,0 +1,51 @@
+package com.example.mylogin.authentication;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import io.jsonwebtoken.io.IOException;
+
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String TOKEN_PREFIX = "Bearer ";
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException, java.io.IOException {
+        try {
+            String token = extractToken(request);
+            if (token != null && validateToken(token)) {
+                Authentication authentication = getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        } catch (Exception e) {
+            logger.error("Authentication failed: {}");
+        }
+        filterChain.doFilter(request, response);
+    }
+
+    private String extractToken(HttpServletRequest request) {
+        String header = request.getHeader(AUTHORIZATION_HEADER);
+        if (header != null && header.startsWith(TOKEN_PREFIX)) {
+            return header.substring(TOKEN_PREFIX.length());
+        }
+        return null;
+    }
+
+    private boolean validateToken(String token) {
+		return false;
+        // Use the jjwt library to validate the token's signature and expiration
+    }
+
+    private Authentication getAuthentication(String token) {
+		return null;
+        // Extract user details from the token and create an Authentication object
+    }
+}

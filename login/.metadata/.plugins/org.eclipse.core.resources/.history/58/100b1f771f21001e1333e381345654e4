@@ -1,0 +1,28 @@
+package com.example.myadmissionportal.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.example.myadmissionportal.entity.Student;
+import com.example.myadmissionportal.repository.StudentRepository;
+
+@Service
+
+public class StudentService {
+	
+	@Autowired
+	private StudentRepository repo;
+	
+	public Student login(String email ,String password) {
+		Student student = repo.findByEmailAndPassword(email, password);
+		return student;
+	}
+	
+
+		
+		
+		
+		
+	}
+
+

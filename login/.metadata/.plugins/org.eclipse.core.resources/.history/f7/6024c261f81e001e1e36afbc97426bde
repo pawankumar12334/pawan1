@@ -1,0 +1,9 @@
+package com.example.loginsecurity.repository;
+
+import org.springframework.data.jpa.repository.cdi.JpaRepositoryExtension;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class StudentRepository  extends JpaRepositoryExtension<Student,Long> {
+
+}

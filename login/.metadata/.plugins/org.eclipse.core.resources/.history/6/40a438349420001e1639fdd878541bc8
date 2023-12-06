@@ -1,0 +1,47 @@
+package com.example.loginpage.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import com.example.loginpage.entity.Student;
+import com.example.loginpage.service.StudentService;
+
+
+@Controller
+public class StudentController {
+	
+	@Autowired
+	private StudentService studentService;
+	
+	@GetMapping("/hello")
+    public String hello(){
+        return "Hello welcome to the student page";
+    }
+	@PostMapping("/login")
+    public String login(@RequestBody Credentials credentials) {
+        Student student = StudentService.getStudentByEmail(credentials.getEmail());
+        if (student != null && student.getPassword().equals(credentials.getPassword())) {
+            if (student.getStudentType() == StudentType.STUDENT) {
+                // Redirect to student dashboard
+                return "redirect:/student/dashboard";
+            } else if (student.getStudentType() == StudentType.ADMIN) {
+                // Redirect to admin dashboard
+                return "redirect:/admin/dashboard";
+            }
+        }
+        // Invalid login credentials or user not found, handle accordingly
+        return "redirect:/login?error";
+    }
+}
+
+
+
+
+
+
+	
+
+}

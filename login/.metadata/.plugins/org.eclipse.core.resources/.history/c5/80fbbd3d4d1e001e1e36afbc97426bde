@@ -1,0 +1,15 @@
+package com.example.myadmissionportal.service;
+
+import org.springframework.stereotype.Service;
+
+import com.example.myadmissionportal.entity.Student;
+
+@Service
+
+public class StudentService {
+	
+	public  Student loginNewStudent(Student,student) {
+		
+	}
+
+}

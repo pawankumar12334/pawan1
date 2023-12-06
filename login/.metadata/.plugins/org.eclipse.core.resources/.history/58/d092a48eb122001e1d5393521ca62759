@@ -1,0 +1,73 @@
+package com.example.springapplication.service;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.example.springapplication.dao.RoleDao;
+import com.example.springapplication.dao.StudentDao;
+import com.example.springapplication.entity.Role;
+import com.example.springapplication.entity.Student;
+
+@Service
+public class StudentService {
+	
+	
+	
+	@Autowired
+	private StudentDao studentDao;
+	@Autowired
+	private RoleDao roleDao;
+	
+	public Student registerNewStudent(Student student) { 
+		return studentDao.save(student);}
+		 
+	 public void initRoleAndStudent() {
+		 
+		 Role adminRole = new Role();
+	        adminRole.setRoleName("Admin");
+	        adminRole.setRoleDescription("Admin role");
+	        roleDao.save(adminRole);
+	        
+	        Role studentRole = new Role();
+	        studentRole.setRoleName("Student");
+	        studentRole.setRoleDescription("Default role for newly created record");
+	        roleDao.save(studentRole); 
+	        
+	        Student adminStudent = new Student();
+	        adminStudent.setFirstName("admin");
+	        adminStudent.setLastName("admin");
+	        adminStudent.setEmail("adminexample@gmail.com");
+	        adminStudent.setAddress("3-169-13");
+	        adminStudent.setPhoneNumber("8919491874");
+	        adminStudent.setPassword(("admin@123"));
+	        
+	        Set<Role> adminRoles = new HashSet<>();
+	        adminRoles.add(adminRole);
+	        adminStudent.setRole(adminRoles);
+	        studentDao.save(adminStudent);
+	        
+	        Student Student = new Student();
+	        Student.setFirstName("student");
+	        Student.setLastName("student");
+	        Student.setEmail("studentexample@gmail.com");
+	        Student.setAddress("3-169-13");
+	        Student.setPhoneNumber("8919491874");
+	        Student.setPassword(("student@123"));
+	        
+	        Set<Role> studentRoles = new HashSet<>();
+	        studentRoles.add(studentRole);
+	        Student.setRole(studentRoles);
+	        studentDao.save(Student);
+	 }
+
+	public void initRoleAndStudent1() {
+		// TODO Auto-generated method stub
+		
+	}
+		
+	}
+
+

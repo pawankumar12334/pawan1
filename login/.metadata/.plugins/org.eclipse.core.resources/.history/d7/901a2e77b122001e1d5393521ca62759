@@ -1,0 +1,28 @@
+package com.example.springapplication.controller;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.springapplication.entity.Student;
+import com.example.springapplication.service.StudentService;
+
+@RestController
+public class StudentController {
+	 @Autowired
+	private StudentService studentService;
+	 
+	 @PostConstruct 
+	 public void initRolesAndStudents() {
+	  studentService.initRoleAndStudent();
+	 }
+
+	
+	 @PostMapping({"/registerNewStudent"})
+	public Student registerNewStudent(@RequestBody Student student) {
+	return	studentService.registerNewStudent(student);
+	}
+}

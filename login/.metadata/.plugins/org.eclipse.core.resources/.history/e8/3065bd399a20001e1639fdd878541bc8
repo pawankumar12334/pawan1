@@ -1,0 +1,5 @@
+package com.example.myadmissionportal.repository;
+
+public class StudentRepository {
+
+}

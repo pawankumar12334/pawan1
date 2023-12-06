@@ -1,0 +1,5 @@
+package com.example.mylogin.service;
+
+public class UserDetailServiceImpl {
+
+}

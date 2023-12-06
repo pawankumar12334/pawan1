@@ -1,0 +1,5 @@
+package com.example.mylogin.repository;
+
+public class UserRepository {
+
+}

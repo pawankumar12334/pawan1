@@ -1,0 +1,99 @@
+package com.example.mylogin.authentication;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureException;
+
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String TOKEN_PREFIX = "Bearer ";
+    private static final String SECRET_KEY = "SecretKey123!";
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, java.io.IOException {
+        try {
+            String token = extractToken(request);
+            if (token != null && validateToken(token)) {
+                Authentication authentication = getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        } catch (ExpiredJwtException e) {
+            logger.error("JWT token has expired");
+        } catch (MalformedJwtException e) {
+            logger.error("Invalid JWT token");
+        } catch (SignatureException e) {
+            logger.error("Invalid JWT signature");
+        } catch (Exception e) {
+            logger.error("Authentication failed: {}");
+        }
+        filterChain.doFilter(request, response);
+    }
+
+    private String extractToken(HttpServletRequest request) {
+        String header = request.getHeader(AUTHORIZATION_HEADER);
+        if (header != null && header.startsWith(TOKEN_PREFIX)) {
+            return header.substring(TOKEN_PREFIX.length());
+        }
+        return null;
+    }
+
+    private boolean validateToken(String token) {
+        try {
+            Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
+            return true;
+        } catch (ExpiredJwtException e) {
+            throw e; // Rethrow the exception to handle in the calling method
+        } catch (MalformedJwtException e) {
+            throw e; // Rethrow the exception to handle in the calling method
+        } catch (SignatureException e) {
+            throw e; // Rethrow the exception to handle in the calling method
+        } catch (Exception e) {
+            logger.error("Invalid JWT token: {}");
+        }
+        return false;
+    }
+
+    private Authentication getAuthentication(String token) {
+        try {
+            Claims claims = Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+            String email = claims.get("email", String.class);
+
+            // You can extract additional user details from the token claims if needed
+
+            // Validate user's credentials based on email and password
+            if (validateCredentials(email)) {
+                return new UsernamePasswordAuthenticationToken(email, null, null);
+            } else {
+                logger.error("Invalid credentials for email: {}");
+            }
+        } catch (Exception e) {
+            logger.error("Failed to extract user details from JWT token: {}");
+        }
+        return null;
+    }
+
+    private boolean validateCredentials(String email) {
+        // Implement your logic to validate user credentials based on email and password
+        // Return true if the credentials are valid, otherwise false
+        // Example: You can call your UserService to check if the email and password are correct
+        // You can also integrate with your existing authentication mechanism
+
+        return false;
+    }
+}
+
+

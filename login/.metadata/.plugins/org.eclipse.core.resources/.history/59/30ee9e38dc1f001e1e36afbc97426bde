@@ -1,0 +1,50 @@
+package com.example.registerpage.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.example.registerpage.entity.RegisterDto;
+import com.example.registerpage.entity.User;
+import com.example.registerpage.repository.RegisterRepository;
+
+
+@Service
+public class RegiterImplService implements RegisterService {
+    private final RegisterRepository regRepo;
+    private final PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public RegiterImplService(RegisterRepository regRepo, PasswordEncoder passwordEncoder) {
+        this.regRepo = regRepo;
+        this.passwordEncoder = passwordEncoder;
+    }
+    @Override
+    public boolean checkphoneNumberExists(String phoneNumber) { 
+    return regRepo.existsByphoneNumber(phoneNumber);
+}
+
+
+     @Override
+    public boolean checkEmailExists(String email) {
+        return regRepo.existsByEmail(email);
+    }
+     private String encryptPassword(String password) {
+    	    BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    	    return passwordEncoder.encode(password);
+    @Override
+    public String addStudent(RegisterDto registerDto) {
+        User user = new User(
+            registerDto.getId(),
+            registerDto.getFirstName(),
+            registerDto.getLastName(),
+            registerDto.getEmail(),
+            registerDto.getAddress(),
+            registerDto.getPhoneNumber(),
+            passwordEncoder.encode(registerDto.getPassword())
+        );
+        regRepo.save(user);
+        return user.getFirstName();
+    }
+}

@@ -1,0 +1,11 @@
+package com.example.myadmissionportal.dao;
+
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+
+import com.example.myadmissionportal.entity.Student;
+
+@Repository
+public interface StudentDao extends CrudRepository<Student,String> {
+
+}

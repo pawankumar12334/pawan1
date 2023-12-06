@@ -1,0 +1,23 @@
+package com.example.myadmissionportal.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.myadmissionportal.entity.Student;
+import com.example.myadmissionportal.service.StudentService;
+
+@RestController
+public class StudentController {
+	
+	 @Autowired
+	 private StudentService studentService;
+	
+	 @PostMapping({"/loginNewStudent"})
+	 public Student loginNewStudent( @RequestBody Student student) {
+		return studentService.loginNewStudent(student);
+		 
+	 }
+
+}
